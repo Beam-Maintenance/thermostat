@@ -10,7 +10,7 @@ by adding `thermostat` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:thermostat, github: "Beam-Maintenance/thermostat", tag: "v0.2.0"}
+    {:thermostat, github: "Beam-Maintenance/thermostat", tag: "v0.3.0"}
   ]
 end
 ```
