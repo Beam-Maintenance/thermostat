@@ -1,32 +1,25 @@
-defmodule ExThermostatWeb.LiveComponent do
+defmodule ThermostatWeb.LiveComponent do
   @moduledoc false
   use Phoenix.LiveComponent
-  import ExThermostatWeb.Components
+  import ThermostatWeb.Components
 
-  @adjustment_amount 0.5
+  @modes ["heat", "cool"]
 
   @impl true
-  def handle_event("toggle_heat", _params, socket) do
-    socket.assigns.thermostat_implementation.toggle_mode(:heat)
-
+  def handle_event("target", %{"amount" => amount}, socket) do
+    {amount, _} = Float.parse(amount)
+    Thermostat.dispatch(:thermostat_target, amount)
     {:noreply, socket}
   end
 
-  def handle_event("toggle_cool", _params, socket) do
-    socket.assigns.thermostat_implementation.toggle_mode(:cool)
-
+  def handle_event("toggle_mode", %{"mode" => mode}, socket) when mode in @modes do
+    Thermostat.dispatch(:thermostat_toggle_mode, String.to_atom(mode))
     {:noreply, socket}
   end
 
-  @impl true
-  def handle_event("target_down", _, socket) do
-    socket.assigns.thermostat_implementation.adjust_target_by(-@adjustment_amount)
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("target_up", _, socket) do
-    socket.assigns.thermostat_implementation.adjust_target_by(@adjustment_amount)
+  def handle_event("target_adjust", %{"amount" => amount}, socket) do
+    {amount, _} = Float.parse(amount)
+    Thermostat.dispatch(:thermostat_target_adjust, amount)
     {:noreply, socket}
   end
 
@@ -34,7 +27,9 @@ defmodule ExThermostatWeb.LiveComponent do
   attr(:show_heater, :boolean, default: true)
   attr(:show_cooler, :boolean, default: true)
   attr(:show_fan, :boolean, default: false)
+  attr(:adjustment_amount, :float, default: 0.5)
 
+  @impl true
   def render(assigns) do
     assigns =
       assigns
@@ -46,7 +41,8 @@ defmodule ExThermostatWeb.LiveComponent do
       <div
         :if={@show_heater}
         class="component flex flex-row border-2 border-solid border-blue-600 rounded-2xl mx-2"
-        phx-click="toggle_heat"
+        phx-click="toggle_mode"
+        phx-value-mode={:heat}
         phx-target={@myself}
       >
         <div class="ml-2 mt-2">
@@ -63,7 +59,8 @@ defmodule ExThermostatWeb.LiveComponent do
       <div
         :if={@show_cooler}
         class="component flex flex-row border-2 border-solid border-blue-600 rounded-2xl px-2"
-        phx-click="toggle_cool"
+        phx-click="toggle_mode"
+        phx-value-mode={:cool}
         phx-target={@myself}
       >
         <div class="ml-2 mt-2">
@@ -84,7 +81,12 @@ defmodule ExThermostatWeb.LiveComponent do
       </div>
 
       <div :if={@show_temperature_controls} class="component flex flex-row">
-        <div class="px-4 py-2" phx-click="target_down" phx-target={@myself}>
+        <div
+          class="px-4 py-2"
+          phx-click="target_adjust"
+          phx-value-amount={-@adjustment_amount}
+          phx-target={@myself}
+        >
           <.caret_down_filled_icon class="fill-blue-600" />
         </div>
 
@@ -92,7 +94,12 @@ defmodule ExThermostatWeb.LiveComponent do
           {@status.target}&#176;C
         </div>
 
-        <div class="px-4 py-2" phx-click="target_up" phx-target={@myself}>
+        <div
+          class="px-4 py-2"
+          phx-click="target_adjust"
+          phx-value-amount={@adjustment_amount}
+          phx-target={@myself}
+        >
           <.caret_up_filled_icon class="fill-blue-600" />
         </div>
       </div>

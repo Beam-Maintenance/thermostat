@@ -1,11 +1,11 @@
-defmodule ExThermostat.MixProject do
+defmodule Thermostat.MixProject do
   use Mix.Project
 
   @version "0.2.2"
 
   def project do
     [
-      app: :ex_thermostat,
+      app: :thermostat,
       version: @version,
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
@@ -16,7 +16,7 @@ defmodule ExThermostat.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {ExThermostat.Application, []},
+      mod: [],
       extra_applications: [:logger]
     ]
   end
