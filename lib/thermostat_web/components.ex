@@ -1,4 +1,4 @@
-defmodule ExThermostatWeb.Components do
+defmodule ThermostatWeb.Components do
   @moduledoc false
   use Phoenix.Component
   # This is required for use of `~p""` and since we import this in HomeHubWeb
