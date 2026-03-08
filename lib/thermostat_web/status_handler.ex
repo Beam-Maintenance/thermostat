@@ -9,27 +9,27 @@ defmodule ThermostatWeb.StatusHandler do
 
     socket =
       socket
-      |> assign(status: %Thermostat{})
+      |> assign_new(:thermostat, fn _ -> %Thermostat{} end)
       |> assign_show_heater_cooler()
       |> attach_hook(:status_handle_info, :handle_info, &hooked_info/2)
 
     {:cont, socket}
   end
 
-  def hooked_info({:thermostat_status, %Thermostat{} = status}, socket) do
-    Logger.debug("Received thermostat status update #{inspect(status)}")
-    {:cont, socket |> assign(status: status) |> assign_show_heater_cooler()}
+  def hooked_info({:thermostat_status, %Thermostat{} = thermostat}, socket) do
+    Logger.debug("Received thermostat status update #{inspect(thermostat)}")
+    {:cont, socket |> assign(thermostat: thermostat) |> assign_show_heater_cooler()}
   end
 
   def hooked_info(_msg, socket) do
     {:cont, socket}
   end
 
-  def assign_show_heater_cooler(%{assigns: %{status: status}} = socket) do
+  def assign_show_heater_cooler(%{assigns: %{thermostat: thermostat}} = socket) do
     {show_heater, show_cooler} =
       cond do
-        status.mode == :heat -> {true, false}
-        status.mode == :cool -> {false, true}
+        thermostat.mode == :heat -> {true, false}
+        thermostat.mode == :cool -> {false, true}
         true -> {true, true}
       end
 

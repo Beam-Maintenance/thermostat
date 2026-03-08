@@ -23,7 +23,7 @@ defmodule ThermostatWeb.LiveComponent do
     {:noreply, socket}
   end
 
-  attr(:status, :map, required: false)
+  attr(:thermostat, :map, required: false)
   attr(:show_heater, :boolean, default: true)
   attr(:show_cooler, :boolean, default: true)
   attr(:show_fan, :boolean, default: false)
@@ -33,8 +33,8 @@ defmodule ThermostatWeb.LiveComponent do
   def render(assigns) do
     assigns =
       assigns
-      |> assign(:thermostat_temperature_colour, thermostat_temperature_colour(assigns[:status]))
-      |> assign(:show_temperature_controls, show_temperature_controls(assigns[:status]))
+      |> assign(:thermostat_temperature_colour, thermostat_temperature_colour(assigns[:thermostat]))
+      |> assign(:show_temperature_controls, show_temperature_controls(assigns[:thermostat]))
 
     ~H"""
     <div class={[assigns[:class], "component flex flex-row mx-2"]}>
@@ -46,10 +46,10 @@ defmodule ThermostatWeb.LiveComponent do
         phx-target={@myself}
       >
         <div class="ml-2 mt-2">
-          <.fire_icon class={if @status.mode == :heat, do: "fill-red-600", else: "fill-gray-500"} />
+          <.fire_icon class={if @thermostat.mode == :heat, do: "fill-red-600", else: "fill-gray-500"} />
         </div>
 
-        <.toggle on={@status.mode == :heat} />
+        <.toggle on={@thermostat.mode == :heat} />
 
         <div class="px-4 py-2 text-4xl">
           Furnace
@@ -65,11 +65,11 @@ defmodule ThermostatWeb.LiveComponent do
       >
         <div class="ml-2 mt-2">
           <.air_conditioner_icon class={
-            if @status.mode == :cool, do: "fill-blue-600", else: "fill-gray-500"
+            if @thermostat.mode == :cool, do: "fill-blue-600", else: "fill-gray-500"
           } />
         </div>
 
-        <.toggle on={@status.mode == :cool} />
+        <.toggle on={@thermostat.mode == :cool} />
 
         <div class="px-4 py-2 text-4xl">
           A/C
@@ -77,7 +77,7 @@ defmodule ThermostatWeb.LiveComponent do
       </div>
 
       <div :if={@show_fan} class="px-4 py-2">
-        <.fan_icon class={if @status.mode == :fan, do: "fill-blue-600", else: "fill-gray-500"} />
+        <.fan_icon class={if @thermostat.mode == :fan, do: "fill-blue-600", else: "fill-gray-500"} />
       </div>
 
       <div :if={@show_temperature_controls} class="component flex flex-row">
@@ -91,7 +91,7 @@ defmodule ThermostatWeb.LiveComponent do
         </div>
 
         <div class={["px-4 py-2 text-4xl", @thermostat_temperature_colour]}>
-          {@status.target}&#176;C
+          {@thermostat.target}&#176;C
         </div>
 
         <div
@@ -107,13 +107,13 @@ defmodule ThermostatWeb.LiveComponent do
     """
   end
 
-  attr(:status, :map, required: false)
+  attr(:sensor, :map, required: false)
 
   def current_temperature(assigns) do
     ~H"""
     <div class="text-4xl flex">
       <div><span name="hero-home-solid" class="h-10 w-10 mr-4 stroke-amber-600" /></div>
-      <.temperature_display sensor={@status} />
+      <.temperature_display sensor={@sensor} />
     </div>
     """
   end
