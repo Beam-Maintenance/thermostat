@@ -33,14 +33,17 @@ defmodule ThermostatWeb.LiveComponent do
   def render(assigns) do
     assigns =
       assigns
-      |> assign(:thermostat_temperature_colour, thermostat_temperature_colour(assigns[:thermostat]))
+      |> assign(
+        :thermostat_temperature_colour,
+        thermostat_temperature_colour(assigns[:thermostat])
+      )
       |> assign(:show_temperature_controls, show_temperature_controls(assigns[:thermostat]))
 
     ~H"""
     <div class={[assigns[:class], "component flex flex-row mx-2"]}>
       <div
         :if={@show_heater}
-        class="component flex flex-row border-2 border-solid border-blue-600 rounded-2xl mx-2"
+        class="component flex flex-row items-center border-2 border-solid border-blue-600 rounded-2xl mx-2"
         phx-click="toggle_mode"
         phx-value-mode={:heat}
         phx-target={@myself}
@@ -51,14 +54,12 @@ defmodule ThermostatWeb.LiveComponent do
 
         <.toggle on={@thermostat.mode == :heat} />
 
-        <div class="px-4 py-2 text-4xl">
-          Furnace
-        </div>
+        <span class="pt-4 text-4xl">Furnace</span>
       </div>
 
       <div
         :if={@show_cooler}
-        class="component flex flex-row border-2 border-solid border-blue-600 rounded-2xl px-2"
+        class="component flex flex-row items-center border-2 border-solid border-blue-600 rounded-2xl px-2"
         phx-click="toggle_mode"
         phx-value-mode={:cool}
         phx-target={@myself}
@@ -71,18 +72,16 @@ defmodule ThermostatWeb.LiveComponent do
 
         <.toggle on={@thermostat.mode == :cool} />
 
-        <div class="px-4 py-2 text-4xl">
-          A/C
-        </div>
+        <span class="pt-4 text-4xl">A/C</span>
       </div>
 
       <div :if={@show_fan} class="px-4 py-2">
         <.fan_icon class={if @thermostat.mode == :fan, do: "fill-blue-600", else: "fill-gray-500"} />
       </div>
 
-      <div :if={@show_temperature_controls} class="component flex flex-row">
+      <div :if={@show_temperature_controls} class="component flex flex-row items-center">
         <div
-          class="px-4 py-2"
+          class="px-4"
           phx-click="target_adjust"
           phx-value-amount={-@adjustment_amount}
           phx-target={@myself}
@@ -90,12 +89,12 @@ defmodule ThermostatWeb.LiveComponent do
           <.caret_down_filled_icon class="fill-blue-600" />
         </div>
 
-        <div class={["px-4 py-2 text-4xl", @thermostat_temperature_colour]}>
+        <div class={["px-4 pt-4 text-4xl", @thermostat_temperature_colour]}>
           {@thermostat.target}&#176;C
         </div>
 
         <div
-          class="px-4 py-2"
+          class="px-4"
           phx-click="target_adjust"
           phx-value-amount={@adjustment_amount}
           phx-target={@myself}
@@ -122,7 +121,7 @@ defmodule ThermostatWeb.LiveComponent do
 
   def temperature_display(assigns) do
     ~H"""
-    <div>
+    <div class="pt-4">
       <%= if not is_nil(@sensor) do %>
         <b>{Float.round(@sensor.temperature, 1)}&#176;C</b>
         at <b>{@sensor.humidity |> Float.round(0) |> trunc()}%</b>
